@@ -1,9 +1,11 @@
 // Saves options to chrome.storage
 const saveOptions = () => {
     const chunkSize = document.getElementById('chunkSize').value
-  
+    const instruction = document.getElementById('instruction').value
     chrome.storage.sync.set(
-      { chunkSize : chunkSize },
+      { chunkSize : chunkSize ,
+        instruction: instruction
+      },
       () => {
         // Update status to let user know options were saved.
         const status = document.getElementById('status')
@@ -19,9 +21,12 @@ const saveOptions = () => {
   // stored in chrome.storage.
   const restoreOptions = () => {
     chrome.storage.sync.get(
-      { chunkSize : 1024 },
+      { chunkSize : 100 ,
+        instruction: ""
+      },
       (items) => {
         document.getElementById('chunkSize').value = items.chunkSize
+        document.getElementById('instruction').value = items.instruction
       }
     )
   }

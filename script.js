@@ -1,3 +1,4 @@
+
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.action === "openFileDialog") {
         const fileInput = document.createElement("input");
@@ -39,13 +40,13 @@ const clickTranslate = () => {
         }, 1000)
     })
 }
-const translate = (textToTranslate) => {
+const translate = (textToTranslate, instructionValue) => {
     console.log("fill question")
     var textareas = document.querySelectorAll("textarea")
     var instruction = textareas[0]
     var content = textareas[1]
 
-    instruction.value = "Dịch văn bản sau sang ngôn ngữ tiếng Việt, giữ nguyên vị trí các dòng và số thứ tự như văn bản gốc mà không thay đổi format. Dịch ngắn gọn và giữ nguyên ý nghĩa nội dung, đồng nhất tên các nhân vật, chuẩn văn phong truyện tranh hàn quốc, các tên nhân vật được dịch sang tên hàn quốc phiên âm quốc tế, phân biệt rõ giới tính ngôi thứ ba của nam và nữ: phân biệt rõ và sử dụng chính xác giữa cô ấy và anh ấy, hắn và ả, kết quả trả theo dạng mã khối"
+    instruction.value = instructionValue
     instruction.dispatchEvent(new Event('input', { bubbles: true }))
 
     content.value = textToTranslate
@@ -54,29 +55,18 @@ const translate = (textToTranslate) => {
 
 
 async function readFileInChunks(file, processChunk) {
-    // let offset = 0;
-    // const chunkSizeSetting = await chrome.storage.sync.get({ chunkSize: 10000 })
-    // const chunkSize = Number(chunkSizeSetting.chunkSize)
-    // while (offset < file.size) {
-    //     console.log("offset and file size and chunk size" , offset, file.size, chunkSize)
-    //     const blob = file.slice(offset, offset + chunkSize);
-    //     const chunkData = await readBlob(blob)
-    //     offset += chunkSize;
-    //     processChunk(chunkData)
-    //     await clickTranslate()
-    //     await checkComplete()
-    // }
 
     let offset = 0
-    const chunkSizeSetting = await chrome.storage.sync.get({ chunkSize: 100 })
-    const chunkSize = Number(chunkSizeSetting.chunkSize)
+    const options = await chrome.storage.sync.get(OPTIONS)
+    const chunkSize = Number(options.chunkSize)
+    const instruction = options.instruction
     const text = await readBlob(file)
     var lines = text.split('\n')
     console.log(lines.length)
     while (offset < lines.length) {
         console.log("offset and file size and chunk size" , offset, lines.length, chunkSize)
         const chunkData = lines.slice(offset, offset + chunkSize);
-        processChunk(chunkData)
+        processChunk(chunkData, instruction)
         await clickTranslate()
         await checkComplete()
         offset += chunkSize

@@ -23,7 +23,8 @@
             ],
             "js": [
                 "script.js",
-                "utils.js"
+                "utils.js",
+                "constants.js"
             ]
         }
     ],
